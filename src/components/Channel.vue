@@ -25,9 +25,24 @@ export default {
       },
       callStarted: false,
       cameraStarted: false,
+      // remoteContainer: document.getElementById("remote-container"),
     };
   },
   methods: {
+    // addVideoStream(elementId) {
+    //   // Creates a new div for every stream
+    //   let streamDiv = document.createElement("div");
+    //   // Assigns the elementId to the div.
+    //   streamDiv.id = elementId;
+    //   // Takes care of the lateral inversion
+    //   streamDiv.style.transform = "rotateY(180deg)";
+    //   // Adds the div to the container.
+    //   this.remoteContainer.appendChild(streamDiv);
+    // },
+    // removeVideoStream(elementId) {
+    //   let remoteDiv = document.getElementById(elementId);
+    //   if (remoteDiv) remoteDiv.parentNode.removeChild(remoteDiv);
+    // },
     async startCall() {
       const rtcEngine = this.rtc;
       rtcEngine.client = AgoraRTC.createClient({ mode: "rtc", codec: "h264" });
@@ -49,21 +64,32 @@ export default {
 
         rtcEngine.client.on("stream-added", function(evt) {
           const remoteStream = evt.stream;
-          const id = remoteStream.getId();
-          if (id !== rtcEngine.params.uid) {
-            rtcEngine.client.subscribe(remoteStream);
-          }
+          // const id = remoteStream.getId();
+          // if (id !== rtcEngine.params.uid) {
+          rtcEngine.client.subscribe(remoteStream);
+          // }
         });
 
         rtcEngine.client.on("stream-subscribed", function(evt) {
           const remoteStream = evt.stream;
+          // let streamId = String(remoteStream.getId());
           remoteStream.play("remote-container");
+          // this.addVideoStream(streamId);
         });
 
         rtcEngine.client.on("stream-removed", function(evt) {
           const remoteStream = evt.stream;
+          // let streamId = String(remoteStream.getId());
           remoteStream.stop("remote-container");
+          // this.removeVideoStream(streamId);
         });
+
+        // rtcEngine.client.on("peer-leave", function(evt) {
+        //   let stream = evt.stream;
+        //   let streamId = String(stream.getId());
+        //   stream.close();
+        //   this.removeVideoStream(streamId);
+        // });
       });
       this.callStarted = true;
     },
