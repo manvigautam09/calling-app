@@ -3,9 +3,12 @@
     Video Call<br /><small style="font-size: 14pt;">Powered by Agora.io</small>
   </h1>
   <div id="remote-container"></div>
-  <button v-on:click="startCall">
-    JOIN CHANNEL
+  <button v-on:click="handleButtonClick">
+    {{ callStarted ? "LEAVE CHANNEL" : "JOIN CHANNEL" }}
   </button>
+  <div v-if="callStarted">
+    <button>Enable Vedio</button>
+  </div>
 </template>
 
 <script>
@@ -20,6 +23,8 @@ export default {
         localStream: null,
         params: {},
       },
+      callStarted: false,
+      cameraStarted: false,
     };
   },
   methods: {
@@ -60,6 +65,26 @@ export default {
           remoteStream.stop("remote-container");
         });
       });
+      this.callStarted = true;
+    },
+    async endCall() {
+      if (this.rtc.client && this.rtc.localStream) {
+        this.rtc.client.unpublish(this.rtc.localStream);
+        this.rtc.localStream.close();
+        this.rtc.client.leave();
+      }
+      this.callStarted = false;
+    },
+    handleButtonClick() {
+      console.log("####rtc", this.rtc.client);
+      if (this.callStarted) {
+        this.endCall();
+        console.log("####ended");
+      } else {
+        this.startCall();
+        console.log("####started");
+      }
+      console.log("####rtcafter the action is called", this.rtc.client);
     },
   },
 };
