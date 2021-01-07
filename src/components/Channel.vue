@@ -31,30 +31,9 @@ export default {
     };
   },
   methods: {
-    // addVideoStream(elementId) {
-    //   // Creates a new div for every stream
-    //   let streamDiv = document.createElement("div");
-    //   // Assigns the elementId to the div.
-    //   streamDiv.id = elementId;
-    //   // Takes care of the lateral inversion
-    //   streamDiv.style.transform = "rotateY(180deg)";
-    //   // Adds the div to the container.
-    //   this.remoteContainer.appendChild(streamDiv);
-    // },
-    // removeVideoStream(elementId) {
-    //   let remoteDiv = document.getElementById(elementId);
-    //   if (remoteDiv) remoteDiv.parentNode.removeChild(remoteDiv);
-    // },
     async startCall() {
       const rtcEngine = this.rtc;
       const remoteContainer = document.getElementById("remote-container");
-      console.log(
-        "##rtcEngine",
-        rtcEngine,
-        remoteContainer,
-        document,
-        document.getElementById("remote-container")
-      );
       rtcEngine.client = AgoraRTC.createClient({ mode: "rtc", codec: "h264" });
       await rtcEngine.client.init("ad65498ba2f5406aad676a1ed4d34230");
       await rtcEngine.client.join(null, `my-room`, null, function(uid) {
@@ -112,15 +91,11 @@ export default {
       this.callStarted = false;
     },
     handleButtonClick() {
-      console.log("####rtc", this.rtc.client);
       if (this.callStarted) {
         this.endCall();
-        console.log("####ended");
       } else {
         this.startCall();
-        console.log("####started");
       }
-      console.log("####rtcafter the action is called", this.rtc.client);
     },
   },
 };
@@ -129,7 +104,6 @@ export default {
 <!-- Add "scoped" attribute to limit CSS to this component only -->
 <style scoped>
 #remote-container {
-  width: 500px;
   height: 500px;
 }
 </style>
