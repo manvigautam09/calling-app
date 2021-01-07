@@ -2,12 +2,14 @@
   <h1>
     Video Call<br /><small style="font-size: 14pt;">Powered by Agora.io</small>
   </h1>
-  <div id="remote-container"></div>
-  <button v-on:click="handleButtonClick">
-    {{ callStarted ? "LEAVE CHANNEL" : "JOIN CHANNEL" }}
-  </button>
+  <div id="remote-container">
+    <button v-on:click="handleButtonClick" class="join-channel-button">
+      {{ callStarted ? "LEAVE CHANNEL" : "JOIN CHANNEL" }}
+    </button>
+  </div>
+
   <div v-if="callStarted">
-    <div>Room is started</div>
+    <div>Room is Live</div>
   </div>
 </template>
 
@@ -105,5 +107,16 @@ export default {
 <style scoped>
 #remote-container {
   height: 500px;
+  position: relative;
+  border: solid 5px #3eb37f;
+  border-radius: 20px;
+  overflow: auto;
+  display: flex;
+}
+.join-channel-button {
+  position: absolute;
+  z-index: 999;
+  bottom: 5px;
+  left: 50%;
 }
 </style>
