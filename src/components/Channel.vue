@@ -7,12 +7,16 @@
     {{ callStarted ? "LEAVE CHANNEL" : "JOIN CHANNEL" }}
   </button>
   <div v-if="callStarted">
-    <button>Enable Vedio</button>
+    <div>Room is started</div>
   </div>
 </template>
 
 <script>
 import AgoraRTC from "agora-rtc-sdk";
+import {
+  addVideoStream,
+  removeVideoStream,
+} from "../helpers/agoraVedioOperators";
 
 export default {
   name: "Channel",
@@ -24,27 +28,12 @@ export default {
         params: {},
       },
       callStarted: false,
-      cameraStarted: false,
-      // remoteContainer: document.getElementById("remote-container"),
     };
   },
   methods: {
-    // addVideoStream(elementId) {
-    //   // Creates a new div for every stream
-    //   let streamDiv = document.createElement("div");
-    //   // Assigns the elementId to the div.
-    //   streamDiv.id = elementId;
-    //   // Takes care of the lateral inversion
-    //   streamDiv.style.transform = "rotateY(180deg)";
-    //   // Adds the div to the container.
-    //   this.remoteContainer.appendChild(streamDiv);
-    // },
-    // removeVideoStream(elementId) {
-    //   let remoteDiv = document.getElementById(elementId);
-    //   if (remoteDiv) remoteDiv.parentNode.removeChild(remoteDiv);
-    // },
     async startCall() {
       const rtcEngine = this.rtc;
+      const remoteContainer = document.getElementById("remote-container");
       rtcEngine.client = AgoraRTC.createClient({ mode: "rtc", codec: "h264" });
       await rtcEngine.client.init("ad65498ba2f5406aad676a1ed4d34230");
       await rtcEngine.client.join(null, `my-room`, null, function(uid) {
@@ -52,7 +41,7 @@ export default {
         rtcEngine.localStream = AgoraRTC.createStream({
           streamID: rtcEngine.params.uid,
           audio: true,
-          video: false,
+          video: true,
           screen: false,
         });
 
@@ -64,32 +53,32 @@ export default {
 
         rtcEngine.client.on("stream-added", function(evt) {
           const remoteStream = evt.stream;
-          // const id = remoteStream.getId();
-          // if (id !== rtcEngine.params.uid) {
-          rtcEngine.client.subscribe(remoteStream);
-          // }
+          const id = remoteStream.getId();
+          if (id !== rtcEngine.params.uid) {
+            rtcEngine.client.subscribe(remoteStream);
+          }
         });
 
         rtcEngine.client.on("stream-subscribed", function(evt) {
           const remoteStream = evt.stream;
-          // let streamId = String(remoteStream.getId());
+          let streamId = String(remoteStream.getId());
           remoteStream.play("remote-container");
-          // this.addVideoStream(streamId);
+          addVideoStream(streamId, remoteContainer);
         });
 
         rtcEngine.client.on("stream-removed", function(evt) {
           const remoteStream = evt.stream;
-          // let streamId = String(remoteStream.getId());
+          let streamId = String(remoteStream.getId());
           remoteStream.stop("remote-container");
-          // this.removeVideoStream(streamId);
+          removeVideoStream(streamId);
         });
 
-        // rtcEngine.client.on("peer-leave", function(evt) {
-        //   let stream = evt.stream;
-        //   let streamId = String(stream.getId());
-        //   stream.close();
-        //   this.removeVideoStream(streamId);
-        // });
+        rtcEngine.client.on("peer-leave", function(evt) {
+          let stream = evt.stream;
+          let streamId = String(stream.getId());
+          stream.close();
+          removeVideoStream(streamId);
+        });
       });
       this.callStarted = true;
     },
@@ -102,19 +91,19 @@ export default {
       this.callStarted = false;
     },
     handleButtonClick() {
-      console.log("####rtc", this.rtc.client);
       if (this.callStarted) {
         this.endCall();
-        console.log("####ended");
       } else {
         this.startCall();
-        console.log("####started");
       }
-      console.log("####rtcafter the action is called", this.rtc.client);
     },
   },
 };
 </script>
 
 <!-- Add "scoped" attribute to limit CSS to this component only -->
-<style scoped></style>
+<style scoped>
+#remote-container {
+  height: 500px;
+}
+</style>
