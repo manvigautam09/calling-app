@@ -147,7 +147,6 @@ export default {
   font-family: "Google Sans Display", Roboto, Arial, sans-serif;
   font-size: 20px;
   text-transform: capitalize;
-  width: 100%;
   margin-left: 25%;
 }
 </style>
