@@ -1,14 +1,10 @@
 <template>
-  <Channel />
+  <router-view />
 </template>
 
 <script>
-import Channel from "./components/Channel";
 export default {
   name: "App",
-  components: {
-    Channel,
-  },
 };
 </script>
 
