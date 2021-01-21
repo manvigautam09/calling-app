@@ -15,6 +15,7 @@
   </div>
 </template>
 <script>
+import { v4 as uuidv4 } from "uuid";
 export default {
   name: "Home",
   data() {
@@ -33,7 +34,7 @@ export default {
   },
   methods: {
     handleButtonClick() {
-      console.log("###clicked", this.roomName);
+      this.$router.push(`/room/${this.roomName}/${uuidv4()}`);
     },
   },
 };

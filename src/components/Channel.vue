@@ -1,7 +1,5 @@
 <template>
-  <h1>
-    Video Call<br /><small style="font-size: 14pt;">Powered by Agora.io</small>
-  </h1>
+  <div class="room-name">{{ channelName }}</div>
   <div id="remote-container">
     <div class="icons-section">
       <img src="../assets/icons/microphone.svg" class="vedio-audio-assets" />
@@ -112,6 +110,7 @@ export default {
       }
     },
   },
+  props: ["channelName"],
 };
 </script>
 
@@ -142,5 +141,13 @@ export default {
   cursor: pointer;
   margin-left: 10px;
   margin-right: 10px;
+}
+.room-name {
+  color: #3eb37f;
+  font-family: "Google Sans Display", Roboto, Arial, sans-serif;
+  font-size: 20px;
+  text-transform: capitalize;
+  width: 100%;
+  margin-left: 25%;
 }
 </style>
