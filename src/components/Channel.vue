@@ -35,14 +35,14 @@ export default {
     };
   },
   methods: {
-    async startCall() {
+    async startCall(channelName = "xyz") {
       const rtcEngine = this.rtc;
       const remoteContainer = document.getElementById("remote-container");
       rtcEngine.client = AgoraRTC.createClient({ mode: "rtc", codec: "h264" });
-      await rtcEngine.client.init("ad65498ba2f5406aad676a1ed4d34230");
+      await rtcEngine.client.init(process.env.VUE_APP_AGORA_KEY);
       await rtcEngine.client.join(
         null,
-        `my-room`,
+        channelName,
         null,
         function(uid) {
           rtcEngine.params.uid = uid;
@@ -106,11 +106,11 @@ export default {
       if (this.callStarted) {
         this.endCall();
       } else {
-        this.startCall();
+        this.startCall(this.channelId);
       }
     },
   },
-  props: ["channelName"],
+  props: ["channelName", "channelId"],
 };
 </script>
 
