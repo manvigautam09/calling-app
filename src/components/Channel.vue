@@ -2,11 +2,33 @@
   <div class="room-name">{{ channelName }}</div>
   <div id="remote-container">
     <div class="icons-section">
-      <img src="../assets/icons/microphone.svg" class="vedio-audio-assets" />
+      <img
+        src="../assets/icons/microphone.svg"
+        class="vedio-audio-assets"
+        @click="toggleMic"
+        v-if="audioOn"
+      />
+      <img
+        src="../assets/icons/redMicrophone.svg"
+        class="vedio-audio-assets"
+        @click="toggleMic"
+        v-else-if="!audioOn"
+      />
       <button v-on:click="handleButtonClick">
         {{ callStarted ? "LEAVE CHANNEL" : "JOIN CHANNEL" }}
       </button>
-      <img src="../assets/icons/video-camera.svg" class="vedio-audio-assets" />
+      <img
+        src="../assets/icons/videoCamera.svg"
+        class="vedio-audio-assets"
+        @click="toggleCamera"
+        v-if="cameraOn"
+      />
+      <img
+        src="../assets/icons/redVideoCamera.svg"
+        class="vedio-audio-assets"
+        @click="toggleCamera"
+        v-else-if="!cameraOn"
+      />
     </div>
   </div>
 
@@ -31,6 +53,8 @@ export default {
         localStream: null,
         params: {},
       },
+      audioOn: true,
+      cameraOn: true,
       callStarted: false,
     };
   },
@@ -107,6 +131,28 @@ export default {
         this.endCall();
       } else {
         this.startCall(this.channelId);
+      }
+    },
+    async toggleMic() {
+      if (this.rtc.client && this.rtc.localStream) {
+        if (this.audioOn) {
+          this.rtc.localStream.muteAudio();
+          this.audioOn = false;
+        } else {
+          this.rtc.localStream.unmuteAudio();
+          this.audioOn = true;
+        }
+      }
+    },
+    async toggleCamera() {
+      if (this.rtc.client && this.rtc.localStream) {
+        if (this.cameraOn) {
+          this.rtc.localStream.muteVideo();
+          this.cameraOn = false;
+        } else {
+          this.rtc.localStream.unmuteVideo();
+          this.cameraOn = true;
+        }
       }
     },
   },
