@@ -156,7 +156,7 @@ export default {
       }
     },
   },
-  props: ["channelName", "channelId"],
+  props: ["channelId"],
 };
 </script>
 

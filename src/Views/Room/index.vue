@@ -1,8 +1,5 @@
 <template>
-  <Channel
-    :channelName="$route.params.roomName"
-    :channelId="$route.params.id"
-  />
+  <Channel :channelId="$route.params.id" />
 </template>
 <script>
 import Channel from "../../components/Channel";
