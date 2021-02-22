@@ -60,7 +60,6 @@ export default {
   },
   methods: {
     async startCall(channelName = "xyz") {
-      console.log("### handleButtonClicked", this);
       const rtcEngine = this.rtc;
       const audioStatus = this.audioOn;
       const cameraStatus = this.cameraOn;
