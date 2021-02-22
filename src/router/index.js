@@ -5,7 +5,7 @@ import Room from "../Views/Room";
 
 const routes = [
   { path: "/", name: "Home", component: Home },
-  { path: "/room/:id", name: "Room", component: Room },
+  { path: "/room/:roomName/:id", name: "Room", component: Room },
 ];
 
 const router = createRouter({

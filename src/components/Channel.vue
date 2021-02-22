@@ -60,8 +60,12 @@ export default {
   },
   methods: {
     async startCall(channelName = "xyz") {
+      console.log("### handleButtonClicked", this);
       const rtcEngine = this.rtc;
+      const audioStatus = this.audioOn;
+      const cameraStatus = this.cameraOn;
       const remoteContainer = document.getElementById("remote-container");
+      AgoraRTC.Logger.setLogLevel(AgoraRTC.Logger.NONE);
       rtcEngine.client = AgoraRTC.createClient({ mode: "rtc", codec: "h264" });
       await rtcEngine.client.init(process.env.VUE_APP_AGORA_KEY);
       await rtcEngine.client.join(
@@ -81,6 +85,15 @@ export default {
             rtcEngine.client.publish(rtcEngine.localStream, function(err) {
               console.error("error in publish", err);
             });
+            if (!audioStatus) {
+              rtcEngine.localStream.muteAudio();
+            }
+            if (!cameraStatus) {
+              rtcEngine.localStream.muteVideo();
+            }
+            let streamId = String(rtcEngine.localStream.getId());
+            rtcEngine.localStream.play("remote-container");
+            addVideoStream(streamId, remoteContainer);
           });
 
           rtcEngine.client.on("stream-added", function(evt) {
@@ -134,29 +147,33 @@ export default {
       }
     },
     async toggleMic() {
-      if (this.rtc.client && this.rtc.localStream) {
-        if (this.audioOn) {
+      if (this.audioOn) {
+        if (this.rtc.client && this.rtc.localStream) {
           this.rtc.localStream.muteAudio();
-          this.audioOn = false;
-        } else {
-          this.rtc.localStream.unmuteAudio();
-          this.audioOn = true;
         }
+        this.audioOn = false;
+      } else {
+        if (this.rtc.client && this.rtc.localStream) {
+          this.rtc.localStream.unmuteAudio();
+        }
+        this.audioOn = true;
       }
     },
     async toggleCamera() {
-      if (this.rtc.client && this.rtc.localStream) {
-        if (this.cameraOn) {
+      if (this.cameraOn) {
+        if (this.rtc.client && this.rtc.localStream) {
           this.rtc.localStream.muteVideo();
-          this.cameraOn = false;
-        } else {
-          this.rtc.localStream.unmuteVideo();
-          this.cameraOn = true;
         }
+        this.cameraOn = false;
+      } else {
+        if (this.rtc.client && this.rtc.localStream) {
+          this.rtc.localStream.unmuteVideo();
+        }
+        this.cameraOn = true;
       }
     },
   },
-  props: ["channelId"],
+  props: ["channelId", "channelName"],
 };
 </script>
 
