@@ -34,7 +34,7 @@ export default {
   },
   methods: {
     handleButtonClick() {
-      this.$router.push(`/room/${uuidv4()}`);
+      this.$router.push(`/room/${this.roomName}/${uuidv4()}`);
     },
   },
 };
