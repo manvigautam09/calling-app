@@ -5,12 +5,12 @@
   />
 </template>
 <script>
-import Channel from "../../components/Channel";
+import Channel from '../../components/Channel';
 
 export default {
-  name: "Room",
+  name: 'Room',
   components: {
-    Channel,
-  },
+    Channel
+  }
 };
 </script>
