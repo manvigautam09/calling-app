@@ -52,7 +52,7 @@
 <script>
 import AgoraRTC from 'agora-rtc-sdk';
 
-import { removeVideoStream } from '../helpers/agoraVedioOperators';
+// import { removeVideoStream } from '../helpers/agoraVedioOperators';
 
 export default {
   components: {},
@@ -130,21 +130,19 @@ export default {
           });
 
           rtcEngine.client.on('stream-removed', function(evt) {
-            console.log('### ', evt);
             const remoteStream = evt.stream;
             let streamId = String(remoteStream.getId());
-            remoteStream.stop('remote-container');
-            removeVideoStream(streamId);
+            remoteStream.stop(streamId);
             removeUsers(streamId);
           });
 
-          rtcEngine.client.on('peer-leave', function(evt) {
-            let stream = evt.stream;
-            let streamId = String(stream.getId());
-            stream.close();
-            removeVideoStream(streamId);
-            removeUsers(streamId);
-          });
+          // rtcEngine.client.on('peer-leave', function(evt) {
+          //   let stream = evt.stream;
+          //   let streamId = String(stream.getId());
+          //   stream.close();
+          //   console.log('### in this', streamId);
+          //   removeUsers(streamId);
+          // });
         },
         function(err) {
           console.error('client join failed ', err);
@@ -164,7 +162,9 @@ export default {
       this.usersInRoom = [...this.usersInRoom, streamId];
     },
     removeUsers(id) {
-      console.log('###', id, this.usersInRoom, this.usersInRoom.indexOf(id));
+      this.usersInRoom = [...this.usersInRoom].filter(
+        (userId) => userId !== id
+      );
     },
     updateRtc(rtcEngine) {
       this.rtc = rtcEngine;
@@ -172,6 +172,10 @@ export default {
     handleButtonClick() {
       if (this.callStarted) {
         this.endCall();
+        this.addCurrentUser('');
+        this.updateLocalStream(null);
+        this.updateRemoteStream(null);
+        this.usersInRoom = [];
       } else {
         this.startCall(this.channelId);
       }
