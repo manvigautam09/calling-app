@@ -15,12 +15,12 @@
   </div>
 </template>
 <script>
-import { v4 as uuidv4 } from "uuid";
+import { v4 as uuidv4 } from 'uuid';
 export default {
-  name: "Home",
+  name: 'Home',
   data() {
     return {
-      roomName: "",
+      roomName: ''
     };
   },
   computed: {
@@ -30,13 +30,13 @@ export default {
       } else {
         return false;
       }
-    },
+    }
   },
   methods: {
     handleButtonClick() {
       this.$router.push(`/room/${this.roomName}/${uuidv4()}`);
-    },
-  },
+    }
+  }
 };
 </script>
 <style scoped>
@@ -47,7 +47,7 @@ export default {
 }
 .page-title {
   color: #00796b;
-  font-family: "Google Sans Display", Roboto, Arial, sans-serif;
+  font-family: 'Google Sans Display', Roboto, Arial, sans-serif;
   font-size: 20px;
 }
 .disable {
@@ -62,7 +62,7 @@ export default {
   width: 500px;
 }
 .room-name-label {
-  font-family: "Google Sans Display", Roboto, Arial, sans-serif;
+  font-family: 'Google Sans Display', Roboto, Arial, sans-serif;
   font-size: 2.75rem;
   font-weight: 300;
   letter-spacing: 0;
@@ -72,7 +72,7 @@ export default {
   height: 30px;
   outline: #00796b;
   color: #00796b;
-  font-family: "Google Sans Display", Roboto, Arial, sans-serif;
+  font-family: 'Google Sans Display', Roboto, Arial, sans-serif;
   font-size: 20px;
 }
 .start-room-button {

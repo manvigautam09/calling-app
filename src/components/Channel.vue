@@ -1,71 +1,90 @@
 <template>
-  <div class="room-name">{{ channelName }}</div>
-  <div id="remote-container">
-    <div class="icons-section">
-      <img
-        src="../assets/icons/microphone.svg"
-        class="vedio-audio-assets"
-        @click="toggleMic"
-        v-if="audioOn"
-      />
-      <img
-        src="../assets/icons/redMicrophone.svg"
-        class="vedio-audio-assets"
-        @click="toggleMic"
-        v-else-if="!audioOn"
-      />
-      <button v-on:click="handleButtonClick">
-        {{ callStarted ? "LEAVE CHANNEL" : "JOIN CHANNEL" }}
-      </button>
-      <img
-        src="../assets/icons/videoCamera.svg"
-        class="vedio-audio-assets"
-        @click="toggleCamera"
-        v-if="cameraOn"
-      />
-      <img
-        src="../assets/icons/redVideoCamera.svg"
-        class="vedio-audio-assets"
-        @click="toggleCamera"
-        v-else-if="!cameraOn"
-      />
+  <div class="container">
+    <div class="room-name">{{ channelName }}</div>
+    <div id="remote-container">
+      <div
+        v-if="currentUser.length > 0"
+        :id="currentUser"
+        class="current-user-picture"
+      >
+        <div class="users-list" id="users-list-container">
+          <div
+            v-for="id in usersInRoom"
+            :key="id"
+            :id="id"
+            class="user-picture"
+          />
+        </div>
+      </div>
+      <div class="icons-section">
+        <img
+          src="../assets/icons/microphone.svg"
+          class="vedio-audio-assets"
+          @click="toggleMic"
+          v-if="audioOn"
+        />
+        <img
+          src="../assets/icons/redMicrophone.svg"
+          class="vedio-audio-assets"
+          @click="toggleMic"
+          v-else-if="!audioOn"
+        />
+        <button v-on:click="handleButtonClick">
+          {{ callStarted ? 'LEAVE CHANNEL' : 'JOIN CHANNEL' }}
+        </button>
+        <img
+          src="../assets/icons/videoCamera.svg"
+          class="vedio-audio-assets"
+          @click="toggleCamera"
+          v-if="cameraOn"
+        />
+        <img
+          src="../assets/icons/redVideoCamera.svg"
+          class="vedio-audio-assets"
+          @click="toggleCamera"
+          v-else-if="!cameraOn"
+        />
+      </div>
     </div>
-  </div>
-
-  <div v-if="callStarted">
-    <div>Room is Live</div>
   </div>
 </template>
 
 <script>
-import AgoraRTC from "agora-rtc-sdk";
-import {
-  addVideoStream,
-  removeVideoStream,
-} from "../helpers/agoraVedioOperators";
+import AgoraRTC from 'agora-rtc-sdk';
+
+// import { removeVideoStream } from '../helpers/agoraVedioOperators';
 
 export default {
-  name: "Channel",
+  components: {},
+  name: 'Channel',
   data() {
     return {
       rtc: {
         client: null,
         localStream: null,
-        params: {},
+        params: {}
       },
       audioOn: true,
       cameraOn: true,
       callStarted: false,
+      currentUser: '',
+      localStream: null,
+      usersInRoom: [],
+      remoteStream: null
     };
   },
   methods: {
-    async startCall(channelName = "xyz") {
+    async startCall(channelName = 'xyz') {
       const rtcEngine = this.rtc;
       const audioStatus = this.audioOn;
       const cameraStatus = this.cameraOn;
-      const remoteContainer = document.getElementById("remote-container");
+      const addUsers = this.addUsers;
+      const removeUsers = this.removeUsers;
+      const addCurrentUser = this.addCurrentUser;
+      const updateLocalStream = this.updateLocalStream;
+      const updateRemoteStream = this.updateRemoteStream;
       AgoraRTC.Logger.setLogLevel(AgoraRTC.Logger.NONE);
-      rtcEngine.client = AgoraRTC.createClient({ mode: "rtc", codec: "h264" });
+      rtcEngine.client = AgoraRTC.createClient({ mode: 'rtc', codec: 'h264' });
       await rtcEngine.client.init(process.env.VUE_APP_AGORA_KEY);
       await rtcEngine.client.join(
         null,
@@ -77,12 +96,12 @@ export default {
             streamID: rtcEngine.params.uid,
             audio: true,
             video: true,
-            screen: false,
+            screen: false
           });
 
           rtcEngine.localStream.init(function() {
             rtcEngine.client.publish(rtcEngine.localStream, function(err) {
-              console.error("error in publish", err);
+              console.error('error in publish', err);
             });
             if (!audioStatus) {
               rtcEngine.localStream.muteAudio();
@@ -91,11 +110,11 @@ export default {
               rtcEngine.localStream.muteVideo();
             }
             let streamId = String(rtcEngine.localStream.getId());
-            rtcEngine.localStream.play("remote-container");
-            addVideoStream(streamId, remoteContainer);
+            updateLocalStream(rtcEngine.localStream);
+            addCurrentUser(streamId);
           });
 
-          rtcEngine.client.on("stream-added", function(evt) {
+          rtcEngine.client.on('stream-added', function(evt) {
             const remoteStream = evt.stream;
             const id = remoteStream.getId();
             if (id !== rtcEngine.params.uid) {
@@ -103,29 +122,30 @@ export default {
             }
           });
 
-          rtcEngine.client.on("stream-subscribed", function(evt) {
+          rtcEngine.client.on('stream-subscribed', function(evt) {
             const remoteStream = evt.stream;
             let streamId = String(remoteStream.getId());
-            remoteStream.play("remote-container");
-            addVideoStream(streamId, remoteContainer);
+            updateRemoteStream(remoteStream);
+            addUsers(streamId);
           });
 
-          rtcEngine.client.on("stream-removed", function(evt) {
+          rtcEngine.client.on('stream-removed', function(evt) {
             const remoteStream = evt.stream;
             let streamId = String(remoteStream.getId());
-            remoteStream.stop("remote-container");
-            removeVideoStream(streamId);
+            remoteStream.stop(streamId);
+            removeUsers(streamId);
           });
 
-          rtcEngine.client.on("peer-leave", function(evt) {
-            let stream = evt.stream;
-            let streamId = String(stream.getId());
-            stream.close();
-            removeVideoStream(streamId);
-          });
+          // rtcEngine.client.on('peer-leave', function(evt) {
+          //   let stream = evt.stream;
+          //   let streamId = String(stream.getId());
+          //   stream.close();
+          //   console.log('### in this', streamId);
+          //   removeUsers(streamId);
+          // });
         },
         function(err) {
-          console.error("client join failed ", err);
+          console.error('client join failed ', err);
         }
       );
       this.callStarted = true;
@@ -138,9 +158,24 @@ export default {
       }
       this.callStarted = false;
     },
+    addUsers(streamId) {
+      this.usersInRoom = [...this.usersInRoom, streamId];
+    },
+    removeUsers(id) {
+      this.usersInRoom = [...this.usersInRoom].filter(
+        (userId) => userId !== id
+      );
+    },
+    updateRtc(rtcEngine) {
+      this.rtc = rtcEngine;
+    },
     handleButtonClick() {
       if (this.callStarted) {
         this.endCall();
+        this.addCurrentUser('');
+        this.updateLocalStream(null);
+        this.updateRemoteStream(null);
+        this.usersInRoom = [];
       } else {
         this.startCall(this.channelId);
       }
@@ -171,21 +206,46 @@ export default {
         this.cameraOn = true;
       }
     },
+    updateRemoteStream(rStream) {
+      this.remoteStream = rStream;
+    },
+    updateLocalStream(lStream) {
+      this.localStream = lStream;
+    },
+    addCurrentUser(cUser) {
+      this.currentUser = cUser;
+    }
   },
-  props: ["channelId", "channelName"],
+  props: ['channelId', 'channelName'],
+  updated() {
+    if (this.currentUser.length > 0) {
+      this.localStream.play(this.currentUser.toString());
+    }
+    if (this.usersInRoom.length > 0) {
+      this.usersInRoom.forEach((userId) => {
+        this.remoteStream.play(userId);
+      });
+    }
+  }
 };
 </script>
 
 <!-- Add "scoped" attribute to limit CSS to this component only -->
 <style scoped>
+.container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
 #remote-container {
-  height: 500px;
+  height: 650px;
   position: relative;
   border: solid 5px #3eb37f;
   border-radius: 20px;
-  overflow: auto;
   display: flex;
-  width: 50%;
+  width: 90%;
+  flex-direction: column;
+  overflow: auto;
 }
 .icons-section {
   position: absolute;
@@ -206,9 +266,27 @@ export default {
 }
 .room-name {
   color: #3eb37f;
-  font-family: "Google Sans Display", Roboto, Arial, sans-serif;
+  font-family: 'Google Sans Display', Roboto, Arial, sans-serif;
   font-size: 20px;
   text-transform: capitalize;
-  margin-left: 25%;
+}
+.users-list {
+  display: flex;
+  flex-direction: column;
+  position: absolute;
+  right: 15px;
+  z-index: 999;
+  overflow-y: scroll;
+  height: 600px;
+}
+.user-picture {
+  transform: rotateY(180deg);
+  height: 200px;
+  width: 200px;
+}
+.current-user-picture {
+  width: 100%;
+  height: 100%;
+  position: relative;
 }
 </style>
