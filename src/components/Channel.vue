@@ -52,8 +52,6 @@
 <script>
 import AgoraRTC from 'agora-rtc-sdk';
 
-// import { removeVideoStream } from '../helpers/agoraVedioOperators';
-
 export default {
   components: {},
   name: 'Channel',
@@ -70,7 +68,7 @@ export default {
       currentUser: '',
       localStream: null,
       usersInRoom: [],
-      remoteStream: null
+      remoteStream: []
     };
   },
   methods: {
@@ -136,13 +134,12 @@ export default {
             removeUsers(streamId);
           });
 
-          // rtcEngine.client.on('peer-leave', function(evt) {
-          //   let stream = evt.stream;
-          //   let streamId = String(stream.getId());
-          //   stream.close();
-          //   console.log('### in this', streamId);
-          //   removeUsers(streamId);
-          // });
+          rtcEngine.client.on('peer-leave', function(evt) {
+            let stream = evt.stream;
+            let streamId = String(stream.getId());
+            stream.close();
+            removeUsers(streamId);
+          });
         },
         function(err) {
           console.error('client join failed ', err);
@@ -207,7 +204,7 @@ export default {
       }
     },
     updateRemoteStream(rStream) {
-      this.remoteStream = rStream;
+      this.remoteStream = [...this.remoteStream, rStream];
     },
     updateLocalStream(lStream) {
       this.localStream = lStream;
@@ -222,8 +219,8 @@ export default {
       this.localStream.play(this.currentUser.toString());
     }
     if (this.usersInRoom.length > 0) {
-      this.usersInRoom.forEach((userId) => {
-        this.remoteStream.play(userId);
+      this.usersInRoom.forEach((userId, index) => {
+        this.remoteStream[index].play(userId);
       });
     }
   }
@@ -278,11 +275,16 @@ export default {
   z-index: 999;
   overflow-y: scroll;
   height: 600px;
+  padding-top: 10px;
 }
 .user-picture {
   transform: rotateY(180deg);
-  height: 200px;
-  width: 200px;
+  height: 150px;
+  width: 150px;
+  border: solid 5px white;
+  margin-bottom: 20px;
+  border-radius: 20px;
+  overflow: auto;
 }
 .current-user-picture {
   width: 100%;
