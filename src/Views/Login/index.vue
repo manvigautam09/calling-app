@@ -1,22 +1,24 @@
 <template>
   <div className="vue-tempalte">
-    <form className="inner-block">
+    <form className="inner-block" @submit.prevent="handleButtonClick">
       <h3>Sign In</h3>
 
       <div className="form-group">
         <label>Email address</label>
-        <input type="email" className="form-control" />
+        <input type="email" className="form-control" v-model="email" />
       </div>
 
       <div className="form-group">
         <label>Password</label>
-        <input type="password" className="form-control" />
+        <input type="password" className="form-control" v-model="password" />
       </div>
 
       <button
-        type="button"
-        className="button-styles"
-        @click="handleButtonClick"
+        type="submit"
+        :className="
+          isButtonDisabled ? 'disabled-button-styles' : 'button-styles'
+        "
+        :disabled="isButtonDisabled"
       >
         Sign In
       </button>
@@ -48,14 +50,36 @@
 </template>
 
 <script>
+import * as fb from '../../firebase';
 export default {
   name: 'Login',
   data() {
-    return {};
+    return {
+      email: '',
+      password: ''
+    };
+  },
+  computed: {
+    isButtonDisabled() {
+      let disabled = false;
+      if (this.$data.email.length === 0 || this.$data.password.length === 0) {
+        disabled = true;
+      }
+      return disabled;
+    }
   },
   methods: {
-    handleButtonClick(e) {
-      console.log('###', e);
+    async handleButtonClick() {
+      console.log('###', this.$data.email, this.$data.password);
+      const { user } = await fb.auth.signInWithEmailAndPassword(
+        this.$data.email,
+        this.$data.password
+      );
+
+      if (user) {
+        localStorage.setItem('user', JSON.stringify(user));
+        this.$router.push('/dashboard');
+      }
     }
   }
 };
@@ -134,6 +158,20 @@ label {
   border: solid 1px #3eb37f;
   height: 35px;
   cursor: pointer;
+}
+.disabled-button-styles {
+  display: flex;
+  width: 100%;
+  margin-top: 10px;
+  padding-top: 5px;
+  padding-bottom: 5px;
+  align-items: center;
+  justify-content: center;
+  background-color: #72f7bb;
+  border: solid 1px #72f7bb;
+  height: 35px;
+  cursor: not-allowed;
+  color: gray;
 }
 
 .form-group {

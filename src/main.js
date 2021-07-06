@@ -6,9 +6,11 @@ import { auth } from './firebase';
 
 let app;
 router.beforeEach((to, from, next) => {
+  const user = localStorage.getItem('user');
+
   const requiresAuth = to.matched.some((x) => x.meta.requiresAuth);
 
-  if (requiresAuth && !auth.currentUser) {
+  if (requiresAuth && !auth.currentUser && user === null) {
     next('/login');
   } else {
     next();
