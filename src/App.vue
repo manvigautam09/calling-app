@@ -8,4 +8,10 @@ export default {
 };
 </script>
 
-<style></style>
+<style>
+body {
+  margin-top: -8px !important;
+  margin-left: -4px !important;
+  margin-right: -4px !important;
+}
+</style>
