@@ -72,7 +72,11 @@ export default {
 
 <style scoped>
 .vue-tempalte {
-  height: 95vh;
+  height: 90vh;
+  background-image: url('../../assets/icons/background.jpg');
+  background-size: 90vh 95vw;
+  padding-top: 30px;
+  padding-bottom: 30px;
 }
 
 .inner-block {
